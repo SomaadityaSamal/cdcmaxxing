@@ -1,0 +1,43 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum CdcType {
+  Supermarket
+  Merchant
+}
+
+model Store {
+  id       String   @id
+  name     String
+  cdcType  CdcType
+  baseUrl  String
+  products Product[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  storeId     String
+  store       Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  name        String
+  price       Float
+  category    String
+  imageUrl    String
+  productUrl  String
+  lastUpdated DateTime @default(now())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([storeId, productUrl])
+  @@index([storeId, price])
+  @@index([lastUpdated])
+}
